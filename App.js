@@ -11,6 +11,7 @@ import { Asset } from './enhancedAsset';
 export default class App extends React.Component {
   state = {
     appIsReady: false,
+    firstRow: '',
   }
 
   componentWillMount() {
@@ -34,7 +35,7 @@ export default class App extends React.Component {
       'name': 'my_database',
       'type': 'db',
       // 'hash': '70c1c7e28cb655995950a34c7ccd71b8', // calculate md5 hash here
-      'uri': 'https://github.com/inloop/sqlite-viewer/blob/gh-pages/examples/Chinook_Sqlite.sqlite?raw=true', // path to the file somewhere on the internet
+      'uri': 'https://github.com/florentroques/expo-remote-sqlite-download/blob/master/Chinook_Sqlite.sqlite?raw=true', // path to the file somewhere on the internet
     });
 
     const dbAssetFullName = `${dbAsset.name}.${dbAsset.type}`;
@@ -51,11 +52,12 @@ export default class App extends React.Component {
 
       await db.transaction(tx => {
         tx.executeSql(
-          'select * from Album',
+          'select * from Album LIMIT 0, 1',
           [],
-          (_, { rows }) =>
-            console.log(JSON.stringify(rows)
-          )
+          (_, { rows }) => {
+            this.setState({ firstRow: JSON.stringify(rows) });
+            console.log(JSON.stringify(rows));
+          }
         );
       });
 
@@ -74,7 +76,8 @@ export default class App extends React.Component {
 
     return (
       <View style={styles.container}>
-        <Text>loaded</Text>
+        <Text>first row from SQLite file</Text>
+        <Text>{this.state.firstRow}</Text>
       </View>
     );
   }
@@ -83,7 +86,8 @@ export default class App extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    paddingTop: Expo.Constants.statusBarHeight,
-  },
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center"
+  }
 });
